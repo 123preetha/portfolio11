@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop - Books</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center p-4 bg-white shadow-md">
+    <div class="hidden md:flex space-x-6 items-center">
+      <a href="#" class="hover:text-blue-500">Home</a>
+      <a href="#products" class="hover:text-blue-500">Products</a>
+      <button onclick="toggleCart()" class="hover:text-blue-500">Cart 🛒 (<span id="cart-count">0</span>)</button>
+    </div>
+    <div id="auth-links" class="hidden md:flex items-center gap-4"></div>
+    <button class="md:hidden" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">☰</button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-white">
+    <a href="#" class="block py-2 hover:text-blue-500">Home</a>
+    <a href="#products" class="block py-2 hover:text-blue-500">Products</a>
+    <button onclick="toggleCart()" class="block py-2 hover:text-blue-500">Cart 🛒 (<span id="cart-count">0</span>)</button>
+  </div>
+
+  <!-- Hero Section -->
+  <header class="bg-blue-200 text-center py-10 px-4">
+    <h1 class="text-3xl sm:text-4xl font-bold">Heaven of Books</h1>
+    <p class="mt-2 text-lg">New Books. New Stories.</p>
+  </header>
+
+  <!-- Search -->
+  <section class="p-4 max-w-screen-xl mx-auto">
+    <input type="text" id="search" placeholder="Search by title..." class="border p-2 w-full sm:w-1/2" />
+  </section>
+
+  <!-- Filters -->
+  <section class="p-4 sm:p-6 max-w-screen-xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div>
+      <label for="price-filter" class="mr-2 font-medium">Filter by Price:</label>
+      <select id="price-filter" class="border p-2">
+        <option value="all">All</option>
+        <option value="0-500">₹0 - ₹500</option>
+        <option value="500-1000">₹500 - ₹1000</option>
+        <option value="1000+">₹1000+</option>
+      </select>
+    </div>
+    <div>
+      <label for="genre-filter" class="mr-2 font-medium">Filter by Genre:</label>
+      <select id="genre-filter" class="border p-2">
+        <option value="all">All</option>
+        <option value="fiction">Fiction</option>
+        <option value="nonfiction">Non-fiction</option>
+        <option value="mystery">Mystery</option>
+        <option value="romance">Romance</option>
+        <option value="science">Science</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Product Listing -->
+  <section id="products" class="p-4 sm:p-6 max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></section>
+
+  <!-- Cart Sidebar -->
+  <div id="cart" class="fixed top-0 right-0 w-full sm:w-96 h-full bg-white shadow-lg p-6 hidden flex-col z-50 overflow-y-auto">
+    <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+    <div id="cart-items" class="space-y-4"></div>
+
+    <div class="mt-4">
+      <label for="delivery-option" class="block font-medium mb-1">Delivery Option:</label>
+      <select id="delivery-option" class="border p-2 w-full">
+        <option value="standard">Standard Delivery (3–5 days)</option>
+        <option value="express">VIP Delivery (1–2 days)</option>
+      </select>
+    </div>
+
+    <div class="mt-4">
+      <label for="payment-method" class="block font-medium mb-1">Payment Method:</label>
+      <select id="payment-method" class="border p-2 w-full" onchange="toggleUPI(this.value)">
+        <option value="cod">Cash on Delivery</option>
+        <option value="upi">UPI</option>
+        <option value="card">Credit/Debit Card</option>
+      </select>
+    </div>
+
+    <div id="upi-scanner" class="mt-4 hidden">
+      <label class="block font-medium mb-1">Scan to Pay:</label>
+      <img src="scan.webp" alt="UPI QR Code" class="w-48 h-48 object-contain border mx-auto">
+    </div>
+
+    <div id="upi-id-input" class="mt-4 hidden">
+      <label for="upi-id" class="block font-medium mb-1">Enter UPI ID:</label>
+      <input type="text" id="upi-id" class="border p-2 w-full" placeholder="example@upi" />
+    </div>
+
+    <div id="card-details" class="mt-4 hidden">
+      <label for="card-number" class="block font-medium mb-1">Card Number:</label>
+      <input type="text" id="card-number" class="border p-2 w-full" placeholder="1234 5678 9012 3456" />
+      <label for="card-expiry" class="block font-medium mb-1 mt-2">Expiry Date:</label>
+      <input type="text" id="card-expiry" class="border p-2 w-full" placeholder="MM/YY" />
+      <label for="card-cvv" class="block font-medium mb-1 mt-2">CVV:</label>
+      <input type="password" id="card-cvv" class="border p-2 w-full" placeholder="123" />
+    </div>
+
+    <div class="mt-4">
+      <label for="address" class="block font-medium mb-1">Delivery Address:</label>
+      <textarea id="address" class="border p-2 w-full" rows="3" placeholder="Enter your full address..."></textarea>
+    </div>
+
+    <div class="mt-4">
+      <label for="email" class="block font-medium mb-1">Email Address:</label>
+      <input type="email" id="email" class="border p-2 w-full" placeholder="you@example.com" />
+    </div>
+
+    <div class="mt-4">
+      <label for="mobile" class="block font-medium mb-1">Phone Number:</label>
+      <input type="tel" id="mobile" class="border p-2 w-full" placeholder="123-456-7890" />
+    </div>
+
+    <div class="mt-4">
+      <p class="text-lg">Total: ₹<span id="cart-total">0</span></p>
+      <button onclick="handleCheckout()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">Checkout</button>
+    </div>
+  </div>
+
+  <!-- Confirm Order Modal -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Confirm Your Order</h2>
+      <div id="order-summary" class="text-sm space-y-2 mb-4"></div>
+      <div class="flex justify-end gap-4">
+        <button onclick="document.getElementById('confirm-modal').classList.add('hidden')" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+        <button onclick="placeOrder()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-white text-center p-4 mt-10">
+    <p>&copy; 2025 Heaven of Books | <a href="#" class="underline">About</a> | <a href="#" class="underline">Contact</a> | <a href="#" class="underline">Terms</a></p>
+  </footer>
+
+  <div id="cart-popup" class="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded shadow-lg hidden z-50 transition-opacity duration-300">
+    Added to cart ✅
+  </div>
+
+  <!-- JS Script -->
+  <script>
+    const products = [
+      { id: 1, name: "Little Women", genre: "Mystery", price: 1000, img: "book2.webp" },
+      { id: 2, name: "The Book Thief", genre: "Fiction", price: 800, img: "book2.png" },
+      { id: 3, name: "The Big Deal", genre: "Mystery", price: 1200, img: "book3.jpg" },
+      { id: 4, name: "The Call of the Wild", genre: "Romance", price: 270, img: "book1.jpg" },
+      { id: 5, name: "The Great Gatsby", genre: "Science", price: 899, img: "book4.jpg" },
+      { id: 6, name: "It Ends With Us", genre: "Romance", price: 699, img: "book5.png" },
+      { id: 7, name: "How To Die Famous", genre: "Non-fiction", price: 350, img: "book6.jpg" }
+    ];
+
+    function renderBooks(list = products) {
+      const container = document.getElementById("products");
+      container.innerHTML = "";
+      if (list.length === 0) {
+        container.innerHTML = "<p class='text-gray-500 col-span-full'>No books found.</p>";
+        return;
+      }
+      list.forEach(book => {
+        container.innerHTML += `
+          <div class="border p-4 rounded shadow bg-white">
+            <img src="${book.img}" alt="${book.name}" class="w-full h-60 object-contain rounded mb-2 bg-white" />
+            <h3 class="font-bold text-lg">${book.name}</h3>
+            <p class="text-sm mt-1">Genre: ${book.genre}</p>
+            <p class="text-blue-600 mt-2 font-medium">₹${book.price}</p>
+            <button class="mt-2 bg-blue-500 text-white px-3 py-1 rounded" onclick="addToCart(${book.id})">Add to Cart</button>
+          </div>
+        `;
+      });
+    }
+
+    function toggleCart() {
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (!user) {
+        alert("Please log in to view your cart.");
+        window.location.href = "login.html";
+        return;
+      }
+      document.getElementById('cart').classList.toggle('hidden');
+    }
+
+    function toggleUPI(method) {
+      document.getElementById('upi-scanner').classList.toggle('hidden', method !== 'upi');
+      document.getElementById('upi-id-input').classList.toggle('hidden', method !== 'upi');
+      document.getElementById('card-details').classList.toggle('hidden', method !== 'card');
+    }
+
+    function handleCheckout() {
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (!user) {
+        alert("You must be logged in to checkout.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const delivery = document.getElementById("delivery-option").value;
+      const payment = document.getElementById("payment-method").value;
+      const address = document.getElementById("address").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const total = document.getElementById("cart-total").innerText;
+
+      if (!address || !email || !mobile) {
+        alert("Please fill in all delivery details.");
+        return;
+      }
+
+      const summary = `
+        <p><strong>Delivery:</strong> ${delivery}</p>
+        <p><strong>Payment:</strong> ${payment}</p>
+        <p><strong>Address:</strong> ${address}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Mobile:</strong> ${mobile}</p>
+        <p><strong>Total:</strong> ₹${total}</p>
+      `;
+      document.getElementById("order-summary").innerHTML = summary;
+      document.getElementById("confirm-modal").classList.remove("hidden");
+    }
+
+    function placeOrder() {
+      document.getElementById("confirm-modal").classList.add("hidden");
+      alert("✅ Order confirmed! Thank you for shopping.");
+      document.getElementById("cart").classList.add("hidden");
+      document.getElementById("cart-items").innerHTML = "";
+      document.getElementById("cart-count").innerText = "0";
+      document.getElementById("cart-total").innerText = "0";
+    }
+
+    function logout() {
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "index1.html";  // Redirect to homepage after logout
+}
+
+    
+
+    function renderAuthLinks() {
+      const authLinks = document.getElementById("auth-links");
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (!authLinks) return;
+      if (user) {
+        authLinks.innerHTML = `<span class="font-medium">Welcome, ${user.name}</span>
+        <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Logout</button>`;
+      } else {
+        authLinks.innerHTML = `<a href="login.html" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Login</a>
+        <a href="signup.html" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Sign Up</a>`;
+      }
+    }
+
+    function addToCart(id) {
+      const item = products.find(p => p.id === id);
+      const cartItems = document.getElementById("cart-items");
+      const el = document.createElement("div");
+      el.classList.add("border", "p-2", "rounded");
+      el.innerText = `${item.name} - ₹${item.price}`;
+      cartItems.appendChild(el);
+      document.getElementById("cart-count").innerText++;
+      document.getElementById("cart-total").innerText = +document.getElementById("cart-total").innerText + item.price;
+
+      const popup = document.getElementById("cart-popup");
+      popup.classList.remove("hidden");
+      setTimeout(() => popup.classList.add("hidden"), 2000);
+    }
+
+    function applyFilters() {
+      const selectedGenre = document.getElementById("genre-filter").value;
+      const priceRange = document.getElementById("price-filter").value;
+      const searchQuery = document.getElementById("search").value.toLowerCase();
+
+      let filtered = products;
+
+      if (selectedGenre !== "all") {
+        filtered = filtered.filter(book => book.genre.toLowerCase() === selectedGenre.toLowerCase());
+      }
+      if (priceRange !== "all") {
+        filtered = filtered.filter(book => {
+          const price = book.price;
+          if (priceRange === "0-500") return price <= 500;
+          if (priceRange === "500-1000") return price > 500 && price <= 1000;
+          if (priceRange === "1000+") return price > 1000;
+        });
+      }
+      if (searchQuery) {
+        filtered = filtered.filter(book => book.name.toLowerCase().includes(searchQuery));
+      }
+      renderBooks(filtered);
+    }
+
+    document.getElementById("search").addEventListener("input", applyFilters);
+    document.getElementById("genre-filter").addEventListener("change", applyFilters);
+    document.getElementById("price-filter").addEventListener("change", applyFilters);
+
+    renderBooks();
+    renderAuthLinks();
+  </script>
+</body>
+</html>
